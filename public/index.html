@@ -1,0 +1,99 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <style>
+        .console {
+            resize: both;
+            overflow: auto;
+            height: 400px;
+        }
+    </style>
+    <title>Console Index</title>
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a href="#" class="navbar-brand">MultiConsole</a>
+            </div>
+        </nav>
+        <br />
+        <div class="container">
+            <div class="card-body">
+                <h3>MultiConsole Index</h3>
+                <hr />
+
+                <div class="row gy-4">
+                    <div v-for="mConsole in allConsoles" class="col-sm-12 col-md-6 col-lg-4 console">
+                        <h4>{{mConsole["id"]}}</h4>
+                        <ul class="list-group">
+                            <li v-for="log in mConsole['logs']" :class="{
+                                'list-group-item': true,
+                                'text-dark': (log['type'] === 'log'),
+                                'text-primary': (log['type'] === 'info'),
+                                'text-danger': (log['type'] === 'error'),
+                                'text-warning': (log['type'] === 'warning'),
+                                'text-success': (log['type'] === 'success'),
+                                'glow': true
+                            }">
+                                <pre>&gt;&nbsp;{{log["data"]}}</pre>
+                            </li>
+                            <li v-if="mConsole['logs'].length === 0" class="list-group-item text-center">
+                                <b class="text-muted">No logs yet</b>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/vue.min.js"></script>
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            allConsoles: [],
+        },
+        mounted: function () {
+            const self = this;
+            var socket = io();
+
+            socket.emit("list-consoles");
+            socket.on("allConsoles", (allConsoles) => {
+                console.log("Got allConsoles");
+                self.allConsoles = allConsoles;
+                console.log(allConsoles);
+                console.log(self.allConsoles);
+            });
+
+            socket.on("log", (payload) => {
+                const consoleItem = this.allConsoles.find(
+                    (mConsole) => mConsole.id === payload.id
+                );
+                consoleItem.logs.push({
+                    data: payload.data,
+                    type: payload.type,
+                });
+                console.log(self.allConsoles);
+            });
+
+            socket.on("clear", (payload) => {
+                const consoleItem = this.allConsoles.find(
+                    (mConsole) => mConsole.id === payload.id
+                );
+                consoleItem.logs.length = 0;
+                console.log(self.allConsoles);
+            });
+        },
+    });
+</script>
+
+</html>

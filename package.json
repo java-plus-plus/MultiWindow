@@ -1,0 +1,16 @@
+{
+  "name": "multi-windows",
+  "version": "1.0.0",
+  "description": "Create multiple output panels for nodejs",
+  "main": "MultiConsole.js",
+  "repository": "https://github.com/jishnuraj-generals/MultiWindow.git",
+  "author": "Jishnu Raj <jishnurajpp2@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "express": "^4.17.1",
+    "open": "^8.0.5",
+    "socket.io": "^4.0.1",
+    "uuid": "^8.3.2"
+  }
+}
