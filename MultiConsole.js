@@ -10,8 +10,8 @@ let io;
 
 let config = {
     port: 3000,
-    openInBrowser: true
-}
+    openInBrowser: true,
+};
 
 const allConsoles = [];
 
@@ -25,7 +25,7 @@ class MultiConsole {
         this.id = id || uuid();
         allConsoles.push({
             id: this.id,
-            logs: []
+            logs: [],
         });
     }
 
@@ -34,42 +34,53 @@ class MultiConsole {
         server = http.createServer(app);
         io = socketio(server);
 
-
         io.on("connection", (socket) => {
-            socket.on("disconnect", () => {
-            });
+            socket.on("disconnect", () => { });
             socket.on("list-consoles", (msg) => {
-                io.emit("allConsoles", allConsoles)
-            })
-        })
+                io.emit("allConsoles", allConsoles);
+            });
+        });
 
-        app.use(express.static("public"));
+        app.get("/", (req, res) => {
+            console.log(__dirname);
+            res.sendFile(__dirname + "/public/index.html");
+        });
+
+        app.get("/js/vue.min.js", (req, res) => {
+            console.log(__dirname);
+            res.sendFile(__dirname + "/public/js/vue.min.js");
+        });
+
+        app.get("/css/bootstrap.min.css", (req, res) => {
+            console.log(__dirname);
+            res.sendFile(__dirname + "/public/css/bootstrap.min.css");
+        });
 
         server.listen(config.port);
 
-        if(config.openInBrowser){
-            open("http://localhost:"+config.port)
+        if (config.openInBrowser) {
+            open("http://localhost:" + config.port);
         }
     }
 
-    getId(){
+    getId() {
         return this.id;
     }
 
     log(msg) {
-        this.sendLog(msg, "log")
+        this.sendLog(msg, "log");
     }
 
     success(msg) {
-        this.sendLog(msg, "success")
+        this.sendLog(msg, "success");
     }
 
     info(msg) {
-        this.sendLog(msg, "info")
+        this.sendLog(msg, "info");
     }
 
     error(msg) {
-        this.sendLog(msg, "error")
+        this.sendLog(msg, "error");
     }
 
     warning(msg) {
@@ -77,36 +88,33 @@ class MultiConsole {
     }
 
     sendLog(msg, type) {
-        const mConsole = allConsoles.find(mConsole => mConsole.id === this.id);
+        const mConsole = allConsoles.find((mConsole) => mConsole.id === this.id);
 
         mConsole.logs.push({
             data: msg,
-            type
+            type,
         });
 
         io.emit("log", {
             id: this.id,
             data: msg,
-            type
+            type,
         });
     }
 
     clear() {
-        const mConsole = allConsoles.find(mConsole => mConsole.id === this.id);
+        const mConsole = allConsoles.find((mConsole) => mConsole.id === this.id);
         mConsole.logs.length = 0;
-        io.emit("clear", { id: this.id })
+        io.emit("clear", { id: this.id });
     }
-
-
-
 }
 
 module.exports = MultiConsole;
 
 module.exports.config = (mConfig) => {
-    config = {...config, ...mConfig}
-}
+    config = { ...config, ...mConfig };
+};
 
 module.exports.openBrowser = () => {
-    open("http://localhost:"+config.port);
-}
+    open("http://localhost:" + config.port);
+};
